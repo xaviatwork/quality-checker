@@ -68,6 +68,12 @@ main() {
     report_file="/tmp/repost.json"
     repository="$1"
 
+    # Check if target location contain *.sh files
+    if ! find "$repository"/*.sh > /dev/null ; then 
+        echo "[WARNING] Repository '$repository' does not contains *.sh files"
+        exit 0
+    fi
+
     # Clean Up
     if [[ -f $raw_report_file ]]; then rm $raw_report_file; fi
     if [[ -f $report_file ]]; then rm $report_file; fi
@@ -93,56 +99,5 @@ main() {
     print_total
 }
 
+# ---- 
 main $REPO_PATH
-
-# (
-#     printf "%8s %5d ShellCheck findings\n" "TOTAL" "$total"
-#     printf "${COLOR_AUTO}-----------------------------------\n"
-#     printf "%8s %5d: %3d %% " "INFO" $info $percent_info
-
-#    print_bar $percent_info
-
-#     printf "%8s %5d: %3d %% " "WARNINGS" $warning $percent_warning
-#     printf $COLOR_YELLOW
-#     for (( i=0;i < percent_warning; i++ )) ; do
-#         printf "█"
-#     done
-#     printf "${COLOR_AUTO}\n" $percent_warning
-
-#     printf "%8s %5d: %3d %% " "ERRORS" $error
-#         printf $COLOR_RED
-#     for (( i=0;i < percent_error; i++ )) ; do 
-#         printf "█"
-#     done
-#     printf "${COLOR_AUTO}\n-----------------------------------\n"
-# ) | tee -a history.txt
-
-# # # To generate the `commit.json` file, the shellcheck command is:
-# # $shellcheck *.sh --format=json \
-# # | jq '.[] 
-# # | {"level": .level, "file": .file, "message": .message, "help": ["https://github.com/koalaman/shellcheck/wiki/SC", .code] 
-# # | join("")}' \
-# # | jq -s \
-# # | tee commit.json
-# # repo="/Users/xavi/repos/work/gitc-gcp-project-watcher"
-# # input_file="$repo/commit.json"
-
-# # INFO=$(jq '.[] | select( .level == "error")' $input_file | jq -s | jq length)
-# # warnings=$(jq '.[] | select( .level == "warning")' $input_file | jq -s | jq length)
-# # infos=$(jq '.[] | select( .level == "info")' $input_file | jq -s | jq length)
-# # styles=$(jq '.[] | select( .level == "style")' $input_file | jq -s | jq length)
-# # commit=$(cd $repo || exit ; git rev-parse --short HEAD)
-# # # cidate=$(cd $repo || exit ; git show --no-patch --format=%at)
-
-# # echo "errors: $errors"
-# # echo "warnings: $warnings"
-# # echo "infos: $infos"
-# # echo "styles: $styles"
-# # echo "commit: $commit"
-# # echo "commit date: $cidate"
-
-# # # data="{category: \"errors\", count: $errors}, {category: \"warning\", count: $warnings}, {category: \"infos\", count: $infos}, {category: \"styles\", count: $styles}"
-
-# # # sed -e "s/CIPLACEHOLDER/$commit/g" -e "s/DATAPLACEHOLDER/${data}/g" chart.tpl > chart.html 
-
-
