@@ -110,8 +110,4 @@ main() {
 
 # ----
 
-REPOS_BASE_SCRIPT="/Users/xavi/repos/work"
-
-while read -r repo; do 
-    main "$REPOS_BASE_SCRIPT/$repo"
-done < repos.txt
+main "$1"
