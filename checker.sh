@@ -40,7 +40,7 @@ main() {
     fi
 
     shellchecker "$repo"
-    total=$(jq '. | length' $report)
+    total=$(jq '. | length' "$report")
     # Get ShellCheck findings
     if [[ $total -ne 0 ]]; then
         info=$(jq '[ select( .[].level == "info" ) ] | length' "$report")
@@ -49,10 +49,10 @@ main() {
     fi
 
     spacer=" "
-    print_header $repo $total
-    print_bar $info $total "info"
-    print_bar $warning $total "warning"
-    print_bar $error $total "error"
+    print_header "$repo" "$total"
+    print_bar "$info" "$total" "info"
+    print_bar "$warning" "$total" "warning"
+    print_bar "$error" "$total" "error"
 }
 
 found_sh_files() {
@@ -74,10 +74,10 @@ shellchecker() {
     local repository
     repository="$1"
     while read -r file; do
-        shellcheck "$file" --format=json >> $report_raw
+        shellcheck "$file" --format=json >> "$report_raw"
     done < <( find "$repository"/*.sh )
     # Join all individual reports into one 
-    jq '.[] | {"level": .level}' $report_raw | jq -s > $report
+    jq '.[] | {"level": .level}' "$report_raw" | jq -s > "$report"
 }
 
 percentage() {
@@ -90,7 +90,7 @@ percentage() {
 print_header() {
     local repository msg
     repository="$1"
-    msg=$(printf "ShellCheck findings for '$repository'\n")
+    msg=$(printf "ShellCheck findings for '%s'\n" "$repository")
     
     spacer=" "
     printf "\n%8s ├ %-100s┤ %s\n" "$spacer" "$msg" "TOTAL: $total"
