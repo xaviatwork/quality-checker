@@ -72,9 +72,9 @@ main() {
     repository="$1"
 
     # Check if target location contain *.sh files
-    if ! find "$repository"/*.sh > /dev/null ; then 
+    if ! find "$repository"/*.sh  &> /dev/null ; then 
         echo "[WARNING] Repository '$repository' does not contains *.sh files"
-        exit 0
+        return
     fi
 
     # Clean Up
