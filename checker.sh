@@ -51,7 +51,9 @@ print_bar() {
         *        ) color=$COLOR_AUTO ;;
     esac
 
-    percent=$(percentage $value $total)
+    if (( total != 0 )); then
+        percent=$(percentage "$value" "$total")
+    fi
 
     printf "%-8s %5d (%3d %%) " "$(echo "$label" | awk '{print toupper($0)}')" "$value" "$percent"
     printf "$color"
