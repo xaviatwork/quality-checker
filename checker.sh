@@ -63,8 +63,7 @@ main() {
     case $format in
         csv)
             csv_separator=';'
-            out=$(mktemp -t csv.XXXXX)           
-            echo >&2 "$repo"
+            out=$(mktemp -t csv.XXXXX)
             (
                 echo "Repository $csv_separator Info $csv_separator Warning $csv_separator Error $csv_separator Total $csv_separator Qscore"
                 echo "$repo $csv_separator $info $csv_separator $warning $csv_separator $error $csv_separator $total $csv_separator  $qscore"
@@ -73,7 +72,8 @@ main() {
         qscore)
             echo "$qscore"
         ;;
-        *) 
+        *)
+            # Default: Histogram
             print_header "$repo" "$total"
             print_bar "$style" "$total" "style"
             print_bar "$info" "$total" "info"
@@ -123,7 +123,7 @@ print_header() {
     ok=''
     if [[ $total == 0 && $bw == 'false' ]]; then ok='\033[42m'; fi
     # spacer=" "
-    printf "\n%12s %-100s %b %s %b\n" "QSCORE: $qscore" "$msg" "$ok" "TOTAL: $total" "$color_auto"
+    printf "\n%12s %-101s %b %s %b\n" "QSCORE: $qscore" "$msg" "$ok" "TOTAL: $total" "$color_auto"
 }
 
 
