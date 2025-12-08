@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-REPO_PATH="/Users/xavi/repos/work/gitc-gcp-apptio"
 
 print_header() {
     local repository msg
@@ -99,5 +98,10 @@ main() {
     print_total
 }
 
-# ---- 
-main $REPO_PATH
+# ----
+
+REPOS_BASE_SCRIPT="/Users/xavi/repos/work"
+
+while read -r repo; do 
+    main "$REPOS_BASE_SCRIPT/$repo"
+done < repos.txt
