@@ -56,11 +56,11 @@ print_bar() {
     fi
 
     printf "%-8s %5d (%3d %%) " "$(echo "$label" | awk '{print toupper($0)}')" "$value" "$percent"
-    printf "$color"
+    printf "%b" "$color"
     for (( i=0;i < percent; ++i )) ; do
         printf "█"
     done
-    printf "${COLOR_AUTO}\n"
+    printf "%b\n" "$COLOR_AUTO"
 }
 
 main() {
