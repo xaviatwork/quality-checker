@@ -2,6 +2,7 @@
 main_args() {
     report_raw=$(mktemp -t shellcheck.XXX)
     report=$(mktemp -t shellcheck.XXX)
+    style=0
     info=0
     warning=0
     error=0
@@ -18,6 +19,14 @@ main_args() {
                 bw='true'
                 shift
             ;;
+            --format)
+                format=${2:?$1 cannot be empty}
+                case "$format" in
+                    csv | hist | qscore ) shift 2; continue ;;
+                    *) exit 1;;
+                esac
+                shift 2
+            ;;
             *) shift;;
         esac
     done
@@ -32,7 +41,7 @@ main_args() {
 }
 
 main() {
-    local repo total info warning error
+    local repo total info warning error format total
     main_args "$@"
 
     if ! found_sh_files "$repo"; then
@@ -43,16 +52,35 @@ main() {
     total=$(jq '. | length' "$report")
     # Get ShellCheck findings
     if [[ $total -ne 0 ]]; then
+        style=$(jq '[ select( .[].level == "style" ) ] | length' "$report")
         info=$(jq '[ select( .[].level == "info" ) ] | length' "$report")
         warning=$(jq '[ select( .[].level == "warning" )] | length' "$report")
         error=$(jq '[ select( .[].level == "error" )] | length' "$report")
     fi
 
-    spacer=" "
-    print_header "$repo" "$total"
-    print_bar "$info" "$total" "info"
-    print_bar "$warning" "$total" "warning"
-    print_bar "$error" "$total" "error"
+    qscore=$(( 0 - style - 2*info - 4*warning - 8*error ))
+    
+    case $format in
+        csv)
+            csv_separator=';'
+            out=$(mktemp -t csv.XXXXX)           
+            echo >&2 "$repo"
+            (
+                echo "Repository $csv_separator Info $csv_separator Warning $csv_separator Error $csv_separator Total $csv_separator Qscore"
+                echo "$repo $csv_separator $info $csv_separator $warning $csv_separator $error $csv_separator $total $csv_separator  $qscore"
+            ) | tee "$out"
+        ;;
+        qscore)
+            echo "$qscore"
+        ;;
+        *) 
+            print_header "$repo" "$total"
+            print_bar "$style" "$total" "style"
+            print_bar "$info" "$total" "info"
+            print_bar "$warning" "$total" "warning"
+            print_bar "$error" "$total" "error"
+        ;;
+    esac
 }
 
 found_sh_files() {
@@ -90,12 +118,12 @@ percentage() {
 print_header() {
     local repository msg ok
     repository="$1"
-    msg=$(printf "ShellCheck findings for '%s'\n" "$repository")
+    msg=$(printf " ShellCheck findings for '%s'\n" "$repository")
     
     ok=''
     if [[ $total == 0 && $bw == 'false' ]]; then ok='\033[42m'; fi
-    spacer=" "
-    printf "\n%9s %-101s %b %s %b\n" "$spacer" "$msg" "$ok" "TOTAL: $total" "$color_auto"
+    # spacer=" "
+    printf "\n%12s %-100s %b %s %b\n" "QSCORE: $qscore" "$msg" "$ok" "TOTAL: $total" "$color_auto"
 }
 
 
@@ -106,7 +134,7 @@ print_bar() {
     label="$3"
 
     case $label in
-        # "info"   ) color=$color_blue; bar_char="░";;
+        "style"   ) color=$color_auto; bar_char="░";;
         "info"   ) color=$color_blue; bar_char="▒";;
         "warning") color=$color_yellow; bar_char="▓";;
         "error"  ) color=$color_red; bar_char="█";;
@@ -125,10 +153,10 @@ print_bar() {
     for (( i=0;i < percent; ++i )) ; do
         bar="${bar}${bar_char}"
     done
-    for (( i=percent;i <= 100; ++i )) ; do
+    for (( i=percent;i < 100; ++i )) ; do
         bar="${bar}·"
     done
-    printf "%8s ├%b%100s%b┤ %3d %% (%s)\n" "$(echo "$label" | awk '{print toupper($0)}')" "$color" "$bar" "$color_auto" "$percent" "$value"
+    printf "%12s ├%b%100s%b┤ %3d %% (%s)\n" "$(echo "$label" | awk '{print toupper($0)}')" "$color" "$bar" "$color_auto" "$percent" "$value"
 }
 
 # ----
