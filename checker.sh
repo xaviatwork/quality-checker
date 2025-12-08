@@ -16,7 +16,9 @@ print_total() {
 }
 
 print_line() {
-    for (( i=0; i<122; i++)); do
+    local length
+    length=$(( 8 + 1 + 5 + 1 + 3 + 1 + 1 + 2 + 1 + 100)) # Length of the bar and other fields
+    for (( i=0; i< length; i++)); do
         printf "-"
     done
     echo ""
