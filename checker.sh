@@ -88,12 +88,14 @@ percentage() {
 }
 
 print_header() {
-    local repository msg
+    local repository msg ok
     repository="$1"
     msg=$(printf "ShellCheck findings for '%s'\n" "$repository")
     
+    ok=''
+    if [[ $total == 0 && $bw == 'false' ]]; then ok='\033[42m'; fi
     spacer=" "
-    printf "\n%8s ├ %-100s┤ %s\n" "$spacer" "$msg" "TOTAL: $total"
+    printf "\n%9s %-101s %b %s %b\n" "$spacer" "$msg" "$ok" "TOTAL: $total" "$color_auto"
 }
 
 
