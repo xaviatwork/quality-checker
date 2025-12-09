@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-
 main() {
     local repo
     local style info warning error
     local report report_raw format csv_separator csv_ouput
     local bw color_auto color_red color_yellow color_blue
-    local total qscore
+    local total qscore show_findings
     main_args "$@"
 
     if ! found_sh_files "$repo"; then
@@ -43,6 +42,11 @@ main() {
             print_bar "$info" "$total" "info"
             print_bar "$warning" "$total" "warning"
             print_bar "$error" "$total" "error"
+
+            if [[ "$show_findings" == 'true' && $total -ne 0 ]]; then
+                printf "\nShellcheck findings:\n"
+                shellcheck --format=gcc "$repo"/*sh
+            fi
         ;;
     esac
 }
@@ -56,6 +60,7 @@ main_args() {
     warning=0
     error=0
     bw='false'
+    show_findings='false'
     while [[ $# -gt 0 ]]
     do
         key="$1"
@@ -75,6 +80,10 @@ main_args() {
                     *) exit 1;;
                 esac
                 shift 2
+            ;;
+            --show)
+                show_findings='true'
+                shift
             ;;
             *) shift;;
         esac
