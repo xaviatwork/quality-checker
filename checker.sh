@@ -100,7 +100,7 @@ found_sh_files() {
         echo >&2 "[ERROR] Repository '$repository' cannot be found"
         return 1
     fi
-    if ! find "$repository"/*.sh -prune -path "*/.devcontainer/*" -path "*/git/*"> /dev/null ; then 
+    if ! find "$repository"/*.sh -prune -path "*/.devcontainer/*" -prune  -path "*/git/*"> /dev/null ; then 
         echo >&2 "[WARNING] Repository '$repository' does not contains *.sh files"
         return 1
     fi
