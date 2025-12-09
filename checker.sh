@@ -110,7 +110,7 @@ shellchecker() {
     local repository
     repository="$1"
     while read -r file; do
-        shellcheck "$file" --format=json >> $report_raw
+        shellcheck "$file" --format=json >> "$report_raw"
     done < <( find "$repository"/*.sh )
     # Join all individual reports into one 
     jq '.[] | {"level": .level}' "$report_raw" | jq -s > "$report"
